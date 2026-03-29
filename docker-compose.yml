@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./server
+    container_name: property-server
+    environment:
+      PORT: 3000
+      SCRAPE_TIMEOUT_MS: 15000
+      SCRAPE_RETRY_ATTEMPTS: 3
+      SCRAPE_RETRY_BASE_DELAY_MS: 750
+      DAILY_SYNC_CRON: "0 2 * * *"
+      DAILY_SYNC_TIMEZONE: "Asia/Jerusalem"
+      LOG_LEVEL: debug
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+    container_name: property-client
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: "/api"
+    depends_on:
+      - server
+    restart: unless-stopped
