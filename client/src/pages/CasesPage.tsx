@@ -7,7 +7,7 @@ import CasesTable from "../components/cases/CasesTable";
 import SyncProgressCard from "../components/cases/SyncProgressCard";
 import { useCasesOverview } from "../hooks/useCasesOverview";
 import { useSyncAllProperties } from "../hooks/useSyncAllProperties";
-import type { CaseFilters as Filters } from "../types/case";
+import type { CaseFilters as Filters, CaseSort } from "../types/case";
 
 export default function CasesPage() {
   const [filters, setFilters] = useState<Filters>({
@@ -17,6 +17,7 @@ export default function CasesPage() {
     urgentOnly: false,
     newActivityOnly: false,
   });
+  const [sort, setSort] = useState<CaseSort>({});
 
   const stableFilters = useMemo(
     () => ({
@@ -29,8 +30,16 @@ export default function CasesPage() {
     [filters]
   );
 
+  const stableSort = useMemo(
+    () => ({
+      sortBy: sort.sortBy,
+      sortDirection: sort.sortDirection,
+    }),
+    [sort.sortBy, sort.sortDirection]
+  );
+
   const { cases, summary, pagination, currentPage, loading, error, goToPage, nextPage, prevPage, reload } =
-    useCasesOverview(stableFilters);
+    useCasesOverview(stableFilters, stableSort);
 
   const { syncing, message, progress, start } = useSyncAllProperties({
     onFinished: reload,
@@ -60,7 +69,7 @@ export default function CasesPage() {
 
       {!loading && !error && cases.length > 0 ? (
         <>
-          <CasesTable cases={cases} />
+          <CasesTable cases={cases} sort={stableSort} onSortChange={setSort} />
           <PaginationControls
             currentPage={currentPage}
             totalPages={pagination.totalPages}

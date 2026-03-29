@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCasesOverview } from "../services/monitoring.api";
-import type { CaseFilters, CasesSummary, CasePaginationInfo, Case } from "../types/case";
+import type {
+  CaseFilters,
+  CasesSummary,
+  CasePaginationInfo,
+  Case,
+  CaseSort,
+} from "../types/case";
 import { DEFAULT_CASES_PAGE_SIZE } from "../constants/pagination";
 
 const emptySummary: CasesSummary = {
@@ -20,7 +26,7 @@ const emptyPagination: CasePaginationInfo = {
   hasPrevPage: false,
 };
 
-export function useCasesOverview(filters: CaseFilters) {
+export function useCasesOverview(filters: CaseFilters, sort: CaseSort = {}) {
   const [cases, setCases] = useState<Case[]>([]);
   const [summary, setSummary] = useState<CasesSummary>(emptySummary);
   const [pagination, setPagination] = useState<CasePaginationInfo>(emptyPagination);
@@ -38,7 +44,7 @@ export function useCasesOverview(filters: CaseFilters) {
         const data = await getCasesOverview(filters, {
           limit: DEFAULT_CASES_PAGE_SIZE,
           offset: offset,
-        });
+        }, sort);
         
         setCases(data.cases || []);
         setSummary(data.summary || emptySummary);
@@ -49,13 +55,13 @@ export function useCasesOverview(filters: CaseFilters) {
         setLoading(false);
       }
     },
-    [filters]
+    [filters, sort]
   );
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters or sorting change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters, sort]);
 
   // Load cases when current page changes
   useEffect(() => {

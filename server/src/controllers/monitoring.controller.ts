@@ -77,6 +77,14 @@ export function getCasesOverviewHandler(req: Request, res: Response) {
     const attentionOnly = req.query.attentionOnly === "true";
     const urgentOnly = req.query.urgentOnly === "true";
     const newActivityOnly = req.query.newActivityOnly === "true";
+    const sortBy =
+      req.query.sortBy === "latestActivity" ? "latestActivity" : undefined;
+    const sortDirection =
+      req.query.sortDirection === "asc"
+        ? "asc"
+        : req.query.sortDirection === "desc"
+          ? "desc"
+          : undefined;
 
     const limit = Math.min(
       Math.max(parseInt(String(req.query.limit || "20"), 10) || 20, 1),
@@ -93,6 +101,8 @@ export function getCasesOverviewHandler(req: Request, res: Response) {
       attentionOnly,
       urgentOnly,
       newActivityOnly,
+      sortBy,
+      sortDirection,
       limit,
       offset,
     });

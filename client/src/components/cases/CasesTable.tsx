@@ -1,4 +1,4 @@
-import type { Case } from "../../types/case";
+import type { Case, CaseSort } from "../../types/case";
 import { buildCaseUrl } from "../../utils/caseLinks";
 import { formatDateTime } from "../../utils/date";
 import Badge from "../ui/Badge";
@@ -7,9 +7,29 @@ import DataTable, { type DataTableColumn } from "../ui/DataTable";
 
 type CasesTableProps = {
   cases: Case[];
+  sort: CaseSort;
+  onSortChange: (next: CaseSort) => void;
 };
 
-export default function CasesTable({ cases }: CasesTableProps) {
+export default function CasesTable({ cases, sort, onSortChange }: CasesTableProps) {
+  const isLatestActivitySort = sort.sortBy === "latestActivity";
+  const currentDirection =
+    isLatestActivitySort && sort.sortDirection ? sort.sortDirection : "desc";
+  const nextDirection = isLatestActivitySort
+    ? currentDirection === "desc"
+      ? "asc"
+      : "desc"
+    : "desc";
+  const directionIcon =
+    isLatestActivitySort && currentDirection === "asc" ? "^" : "v";
+
+  function handleLatestActivitySort() {
+    onSortChange({
+      sortBy: "latestActivity",
+      sortDirection: nextDirection,
+    });
+  }
+
   const columns: DataTableColumn<Case>[] = [
     {
       key: "description",
@@ -58,7 +78,19 @@ export default function CasesTable({ cases }: CasesTableProps) {
     },
     {
       key: "latest_activity_date",
-      title: "Latest Activity",
+      title: (
+        <button
+          type="button"
+          onClick={handleLatestActivitySort}
+          className={`table-sort-button ${
+            isLatestActivitySort ? "table-sort-button--active" : ""
+          }`}
+          aria-label={`Sort by latest activity ${nextDirection}`}
+        >
+          <span>Latest Activity</span>
+          <span className="table-sort-button__icon">{directionIcon}</span>
+        </button>
+      ),
       render: (row) => formatDateTime(row.latest_activity_date),
     },
     {

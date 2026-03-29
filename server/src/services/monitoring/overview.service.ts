@@ -13,6 +13,8 @@ import type { CaseWithProperty } from "../../types/case.types";
 type CasesOverviewInput = CaseFilters & {
   limit?: number;
   offset?: number;
+  sortBy?: "priority" | "latestActivity";
+  sortDirection?: "asc" | "desc";
 };
 
 type CasesOverviewResult = {
@@ -32,7 +34,7 @@ function scoreCase(flags: CaseFlags) {
   return score;
 }
 
-function sortCases<
+function sortCasesByPriority<
   T extends {
     flags: CaseFlags;
     latest_activity_date?: string | null;
@@ -49,6 +51,39 @@ function sortCases<
     if (dateDiff !== 0) return dateDiff;
 
     return 0;
+  });
+}
+
+function getActivityTimestamp(value?: string | null): number | null {
+  const ts = toTimestamp(value);
+  return ts === Number.NEGATIVE_INFINITY ? null : ts;
+}
+
+function sortCasesByLatestActivity<
+  T extends {
+    latest_activity_date?: string | null;
+    case_number?: string | null;
+  }
+>(cases: T[], direction: "asc" | "desc") {
+  return [...cases].sort((a, b) => {
+    const aTs = getActivityTimestamp(a.latest_activity_date);
+    const bTs = getActivityTimestamp(b.latest_activity_date);
+
+    if (aTs == null && bTs == null) {
+      return String(a.case_number ?? "").localeCompare(
+        String(b.case_number ?? "")
+      );
+    }
+
+    if (aTs == null) return 1;
+    if (bTs == null) return -1;
+
+    const diff = direction === "asc" ? aTs - bTs : bTs - aTs;
+    if (diff !== 0) return diff;
+
+    return String(a.case_number ?? "").localeCompare(
+      String(b.case_number ?? "")
+    );
   });
 }
 
@@ -83,7 +118,12 @@ export function listCasesOverview(
   });
 
   const filtered = filterCases(enriched, filters);
-  const sorted = sortCases(filtered);
+  const sortBy = input.sortBy === "latestActivity" ? "latestActivity" : "priority";
+  const sortDirection = input.sortDirection === "asc" ? "asc" : "desc";
+  const sorted =
+    sortBy === "latestActivity"
+      ? sortCasesByLatestActivity(filtered, sortDirection)
+      : sortCasesByPriority(filtered);
   const total = sorted.length;
 
   const summary = summarizeCases(sorted);

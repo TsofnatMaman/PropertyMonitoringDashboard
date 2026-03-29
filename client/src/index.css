@@ -390,6 +390,27 @@ a {
   white-space: nowrap;
 }
 
+.table-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.table-sort-button__icon {
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+.table-sort-button--active .table-sort-button__icon {
+  opacity: 1;
+}
+
 .data-table tr.case-row--new {
   background: #ecfeff;
 }

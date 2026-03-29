@@ -15,6 +15,12 @@ export function startDailySyncJob() {
     async () => {
       logger.info("Daily sync triggered", {
         timezone: config.dailySyncTimezone,
+        nowUtc: new Date().toISOString(),
+        nowLocal: new Intl.DateTimeFormat("en-GB", {
+          timeZone: config.dailySyncTimezone,
+          timeStyle: "medium",
+          dateStyle: "short",
+        }).format(new Date()),
       });
 
       try {

@@ -33,6 +33,15 @@ export type CaseFilters = {
   newActivityOnly?: boolean,
 };
 
+export type CaseSortBy = "priority" | "latestActivity";
+
+export type SortDirection = "asc" | "desc";
+
+export type CaseSort = {
+  sortBy?: CaseSortBy;
+  sortDirection?: SortDirection;
+};
+
 export type CasePaginationParams = {
   limit: number;
   offset: number;

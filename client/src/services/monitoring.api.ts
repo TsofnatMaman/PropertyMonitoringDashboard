@@ -1,5 +1,10 @@
 import { api } from "./api";
-import type { CaseFilters, CasePaginationParams, CasesOverviewResponse } from "../types/case";
+import type {
+  CaseFilters,
+  CasePaginationParams,
+  CasesOverviewResponse,
+  CaseSort,
+} from "../types/case";
 import type {
   StartSyncAllResponse,
   StartSyncPropertyResponse,
@@ -12,7 +17,8 @@ export async function getCasesOverview(
   pagination: CasePaginationParams = {
     limit: DEFAULT_CASES_PAGE_SIZE,
     offset: 0,
-  }
+  },
+  sort: CaseSort = {}
 ): Promise<CasesOverviewResponse> {
   const params = new URLSearchParams();
 
@@ -21,6 +27,8 @@ export async function getCasesOverview(
   if (filters.attentionOnly) params.set("attentionOnly", "true");
   if (filters.urgentOnly) params.set("urgentOnly", "true");
   if (filters.newActivityOnly) params.set("newActivityOnly", "true");
+  if (sort.sortBy) params.set("sortBy", sort.sortBy);
+  if (sort.sortDirection) params.set("sortDirection", sort.sortDirection);
   
   params.set("limit", String(pagination.limit));
   params.set("offset", String(pagination.offset));
