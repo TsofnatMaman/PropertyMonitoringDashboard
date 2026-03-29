@@ -138,7 +138,7 @@ Flags are computed on the server to ensure consistent behavior across the UI:
 * **hasNewActivity**
 
   * Activity occurred after the last sync
-  * OR within the last 7 days if no prior sync exists
+  * OR within the last 100 days
 
 These flags allow the dashboard to prioritize cases effectively.
 
@@ -256,10 +256,10 @@ Sync runs:
 
 ## 🚀 Running Instructions
 
-### Option 1: Docker (Recommended)
+###  Option 1: Docker (Recommended)
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 Then open your browser to:
@@ -277,7 +277,7 @@ The system DB initializes automatically with the default property (APN: 26540020
 ```bash
 cd server
 npm install
-npm start
+npm run dev
 # Runs on http://localhost:3000
 ```
 
@@ -300,15 +300,6 @@ The system uses sensible defaults, but you can customize via `.env` or `docker-c
 * `DAILY_SYNC_CRON` – Cron schedule for daily sync (default: "0 2 * * *" – 2 AM UTC)
 * `DAILY_SYNC_TIMEZONE` – Timezone for cron (default: "Asia/Jerusalem")
 * `LOG_LEVEL` – Logging level (default: "info", options: "debug", "info", "warn", "error")
-
----
-
-## ⚙️ Design Decisions
-
-* **Minimal data model** – store only what is needed for decision-making
-* **Server-side flag computation** – ensures consistency across UI
-* **Daily sync strategy** – balances freshness and performance
-* **APN-based tracking** – allows flexible property selection
 
 ---
 
