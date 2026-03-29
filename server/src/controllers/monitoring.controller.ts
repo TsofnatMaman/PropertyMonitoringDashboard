@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import { startSyncProperty, startSyncAllProperties } from "../services/monitoring/sync.service";
+import {
+  startSyncProperty,
+  startSyncAllProperties,
+} from "../services/monitoring/sync.service";
 import { getSyncAllProgress } from "../services/monitoring/sync-progress.service";
 import { listCasesOverview } from "../services/monitoring/overview.service";
 import { sendServerError } from "../utils/http";
@@ -73,18 +76,23 @@ export function getCasesOverviewHandler(req: Request, res: Response) {
     const openOnly = req.query.openOnly === "true";
     const attentionOnly = req.query.attentionOnly === "true";
     const urgentOnly = req.query.urgentOnly === "true";
-    
+    const newActivityOnly = req.query.newActivityOnly === "true";
+
     const limit = Math.min(
       Math.max(parseInt(String(req.query.limit || "20"), 10) || 20, 1),
       100
     );
-    const offset = Math.max(parseInt(String(req.query.offset || "0"), 10) || 0, 0);
+    const offset = Math.max(
+      parseInt(String(req.query.offset || "0"), 10) || 0,
+      0
+    );
 
     const result = listCasesOverview({
       query,
       openOnly,
       attentionOnly,
       urgentOnly,
+      newActivityOnly,
       limit,
       offset,
     });
@@ -96,14 +104,19 @@ export function getCasesOverviewHandler(req: Request, res: Response) {
         openOnly,
         attentionOnly,
         urgentOnly,
+        newActivityOnly,
       },
       pagination: {
         limit: result.pagination.limit,
         offset: result.pagination.offset,
         total: result.pagination.total,
         page: Math.floor(result.pagination.offset / result.pagination.limit) + 1,
-        totalPages: Math.ceil(result.pagination.total / result.pagination.limit),
-        hasNextPage: result.pagination.offset + result.pagination.limit < result.pagination.total,
+        totalPages: Math.ceil(
+          result.pagination.total / result.pagination.limit
+        ),
+        hasNextPage:
+          result.pagination.offset + result.pagination.limit <
+          result.pagination.total,
         hasPrevPage: result.pagination.offset > 0,
       },
       cases: result.cases,

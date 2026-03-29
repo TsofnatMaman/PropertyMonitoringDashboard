@@ -6,7 +6,6 @@ import {
   summarizeCases,
   type PaginationData,
 } from "../cases/case-labels.service";
-import { getLatestCompletedSyncRun } from "./sync-runs.service";
 import { toTimestamp } from "../../utils/date";
 
 type CasesOverviewInput = CaseFilters & {
@@ -29,9 +28,12 @@ function scoreCase(flags: ReturnType<typeof buildCaseFlags>) {
   return score;
 }
 
-function sortCases<T extends { flags: ReturnType<typeof buildCaseFlags>; latest_activity_date?: string | null }>(
-  cases: T[]
-) {
+function sortCases<
+  T extends {
+    flags: ReturnType<typeof buildCaseFlags>;
+    latest_activity_date?: string | null;
+  }
+>(cases: T[]) {
   return [...cases].sort((a, b) => {
     const scoreDiff = scoreCase(b.flags) - scoreCase(a.flags);
     if (scoreDiff !== 0) return scoreDiff;
@@ -39,7 +41,6 @@ function sortCases<T extends { flags: ReturnType<typeof buildCaseFlags>; latest_
     const aTs = toTimestamp(a.latest_activity_date);
     const bTs = toTimestamp(b.latest_activity_date);
 
-    // toTimestamp returns NEGATIVE_INFINITY for null/invalid, so we can compare directly
     const dateDiff = bTs - aTs;
     if (dateDiff !== 0) return dateDiff;
 
@@ -47,27 +48,28 @@ function sortCases<T extends { flags: ReturnType<typeof buildCaseFlags>; latest_
   });
 }
 
-export function listCasesOverview(input: CasesOverviewInput = {}): CasesOverviewResult {
+export function listCasesOverview(
+  input: CasesOverviewInput = {}
+): CasesOverviewResult {
   const filters: CaseFilters = {
     query: input.query,
     openOnly: input.openOnly,
     attentionOnly: input.attentionOnly,
     urgentOnly: input.urgentOnly,
+    newActivityOnly: input.newActivityOnly,
   };
 
   const limit = Math.min(Math.max(input.limit || 20, 1), 100);
   const offset = Math.max(input.offset || 0, 0);
 
   const cases = listCasesFromDb();
-  const lastSync = getLatestCompletedSyncRun();
-  const lastSyncFinishedAt = lastSync?.finished_at ?? null;
 
   const enriched = cases.map((c) => {
     const flags = buildCaseFlags({
       latest_status: c.latest_status,
       case_type: c.case_type,
       latest_activity_date: c.latest_activity_date,
-      last_sync_finished_at: lastSyncFinishedAt,
+      has_new_activity: c.has_new_activity,
     });
 
     return {

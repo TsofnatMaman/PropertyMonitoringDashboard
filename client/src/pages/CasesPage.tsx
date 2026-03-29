@@ -15,6 +15,7 @@ export default function CasesPage() {
     openOnly: false,
     attentionOnly: false,
     urgentOnly: false,
+    newActivityOnly: false,
   });
 
   const stableFilters = useMemo(
@@ -23,6 +24,7 @@ export default function CasesPage() {
       openOnly: Boolean(filters.openOnly),
       attentionOnly: Boolean(filters.attentionOnly),
       urgentOnly: Boolean(filters.urgentOnly),
+      newActivityOnly: Boolean(filters.newActivityOnly),
     }),
     [filters]
   );

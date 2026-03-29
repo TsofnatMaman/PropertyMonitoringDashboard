@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCasesOverview } from "../services/monitoring.api";
-import type { CaseFilters, CaseItem, CasesSummary, CasePaginationInfo } from "../types/case";
+import type { CaseFilters, CasesSummary, CasePaginationInfo, Case } from "../types/case";
 
 const emptySummary: CasesSummary = {
   total: 0,
@@ -22,7 +22,7 @@ const emptyPagination: CasePaginationInfo = {
 const DEFAULT_PAGE_SIZE = 20;
 
 export function useCasesOverview(filters: CaseFilters) {
-  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [cases, setCases] = useState<Case[]>([]);
   const [summary, setSummary] = useState<CasesSummary>(emptySummary);
   const [pagination, setPagination] = useState<CasePaginationInfo>(emptyPagination);
   const [loading, setLoading] = useState(true);

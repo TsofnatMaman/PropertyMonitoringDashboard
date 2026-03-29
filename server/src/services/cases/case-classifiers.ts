@@ -60,7 +60,7 @@ export const CASE_TYPE = {
   ],
 } as const;
 
-export const NEW_ACTIVITY_WINDOW_DAYS = 1000;
+export const NEW_ACTIVITY_WINDOW_DAYS = 100;
 
 /**
  * Check if a string contains any of the needle values (case-insensitive).

@@ -16,6 +16,7 @@ export async function getCasesOverview(
   if (filters.openOnly) params.set("openOnly", "true");
   if (filters.attentionOnly) params.set("attentionOnly", "true");
   if (filters.urgentOnly) params.set("urgentOnly", "true");
+  if (filters.newActivityOnly) params.set("newActivityOnly", "true");
   
   params.set("limit", String(pagination.limit));
   params.set("offset", String(pagination.offset));

@@ -142,6 +142,29 @@ Flags are computed on the server to ensure consistent behavior across the UI:
 
 These flags allow the dashboard to prioritize cases effectively.
 
+---
+
+## Case Priority Scoring
+
+In addition to the flags, the server sorts cases by a simple priority score so the most important items appear first.
+
+The score is computed as:
+
+```
+score = (isUrgent ? 8 : 0)
+      + (needsAttention ? 4 : 0)
+      + (hasNewActivity ? 2 : 0)
+      + (isOpen ? 1 : 0)
+```
+
+Cases are ordered by:
+
+1. Highest score first
+2. Most recent `latest_activity_date` if scores are equal
+
+This is intentionally simple and easy to adjust in
+`server/src/services/monitoring/overview.service.ts` and the flag rules in
+`server/src/services/cases/case-classifiers.ts`.
 
 ---
 

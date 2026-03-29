@@ -6,6 +6,7 @@ export type CaseRecord = {
   case_type_id: string;
   latest_status?: string | null;
   latest_activity_date?: string | null;
+  has_new_activity: number;
 };
 
 export type CaseWithProperty = CaseRecord & {

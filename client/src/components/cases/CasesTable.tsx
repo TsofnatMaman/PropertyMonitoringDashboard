@@ -1,4 +1,4 @@
-import type { CaseItem } from "../../types/case";
+import type { Case } from "../../types/case";
 import { buildCaseUrl } from "../../utils/caseLinks";
 import { formatDateTime } from "../../utils/date";
 import Badge from "../ui/Badge";
@@ -6,11 +6,11 @@ import Card from "../ui/Card";
 import DataTable, { type DataTableColumn } from "../ui/DataTable";
 
 type CasesTableProps = {
-  cases: CaseItem[];
+  cases: Case[];
 };
 
 export default function CasesTable({ cases }: CasesTableProps) {
-  const columns: DataTableColumn<CaseItem>[] = [
+  const columns: DataTableColumn<Case>[] = [
     {
       key: "description",
       title: "Property Description",
@@ -95,7 +95,7 @@ export default function CasesTable({ cases }: CasesTableProps) {
   );
 }
 
-function buildRowClassName(row: CaseItem) {
+function buildRowClassName(row: Case) {
   const classes = ["case-row"];
 
   if (row.flags?.isUrgent) classes.push("case-row--urgent");

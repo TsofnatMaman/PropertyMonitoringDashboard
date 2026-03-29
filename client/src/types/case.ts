@@ -5,7 +5,7 @@ export type CaseFlags = {
   hasNewActivity: boolean;
 };
 
-export type CaseItem = {
+export type Case = {
   id: number;
   property_id: number;
   apn?: string;
@@ -30,6 +30,7 @@ export type CaseFilters = {
   openOnly?: boolean;
   attentionOnly?: boolean;
   urgentOnly?: boolean;
+  newActivityOnly?: boolean,
 };
 
 export type CasePaginationParams = {
@@ -49,7 +50,7 @@ export type CasePaginationInfo = {
 
 export type CasesOverviewResponse = {
   ok: true;
-  cases: CaseItem[];
+  cases: Case[];
   summary: CasesSummary;
   pagination: CasePaginationInfo;
   filters: CaseFilters;

@@ -65,6 +65,19 @@ export default function CasesFilters({
         />
         Urgent only
       </label>
+      <label className="checkbox-inline">
+        <input
+          type="checkbox"
+          checked={Boolean(filters.newActivityOnly)}
+          onChange={(e) =>
+            onChange({
+              ...filters,
+              newActivityOnly: e.target.checked,
+            })
+          }
+        />
+        New activity only
+      </label>
     </div>
   );
 }

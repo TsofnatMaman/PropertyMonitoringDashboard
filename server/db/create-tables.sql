@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS cases (
   case_type_id TEXT NOT NULL,
   latest_status TEXT,
   latest_activity_date TEXT,
+  has_new_activity INTEGER NOT NULL DEFAULT 0,
   UNIQUE(case_number, property_id, case_type_id),
   FOREIGN KEY (property_id) REFERENCES properties(id)
 );
