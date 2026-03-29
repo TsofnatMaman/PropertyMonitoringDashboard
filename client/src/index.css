@@ -423,6 +423,37 @@ a {
   font-size: 14px;
 }
 
+.pagination {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pagination__button {
+  padding: 8px 12px;
+}
+
+.pagination__button--active {
+  background: #4caf50;
+  color: #ffffff;
+  font-weight: 700;
+  border-color: transparent;
+}
+
+.pagination__ellipsis {
+  color: #999999;
+}
+
+.pagination__meta {
+  margin-left: auto;
+  color: #666666;
+  font-size: 13px;
+}
+
 .badges {
   display: flex;
   flex-wrap: wrap;

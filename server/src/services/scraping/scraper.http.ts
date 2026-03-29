@@ -49,8 +49,9 @@ function sleep(ms: number) {
 export async function getWithRetry(url: string) {
   const maxAttempts = Math.max(1, config.scrapeRetryAttempts);
   const sanitizedUrl = url.replace(/([?&]APN=)\d+/i, "$1***REDACTED***");
+  const overallStartTime = Date.now();
 
-  logger.info(`נ” INITIATING SCRAPE REQUEST (attempt 1/${maxAttempts})`, {
+  logger.info("Scrape request initiated", {
     url: sanitizedUrl,
     timeout: `${config.scrapeTimeoutMs}ms`,
     maxRetries: maxAttempts,
@@ -60,13 +61,16 @@ export async function getWithRetry(url: string) {
     const startTime = Date.now();
 
     try {
-      logger.debug(`[${attempt}/${maxAttempts}] Sending request...`, {
+      logger.debug("Scrape attempt started", {
         url: sanitizedUrl,
+        attempt,
+        maxAttempts,
         timeout: `${config.scrapeTimeoutMs}ms`,
       });
 
       const response = await httpClient.get(url);
-      const duration = Date.now() - startTime;
+      const attemptDuration = Date.now() - startTime;
+      const totalDuration = Date.now() - overallStartTime;
       const htmlLength = getHtmlLength(response.data);
       const finalUrl =
         response?.request?.res?.responseUrl ||
@@ -74,63 +78,72 @@ export async function getWithRetry(url: string) {
         response?.config?.url ||
         null;
 
-      logger.info(`ג… SUCCESS on attempt ${attempt}/${maxAttempts}`, {
+      logger.info("Scrape request succeeded", {
         url: sanitizedUrl,
+        attempt,
+        maxAttempts,
         finalUrl,
         redirected: finalUrl ? finalUrl !== url : false,
         status: response.status,
-        duration: `${duration}ms`,
+        attemptDuration: `${attemptDuration}ms`,
+        totalDuration: `${totalDuration}ms`,
         htmlLength,
         contentType: response.headers?.["content-type"] ?? null,
       });
 
       return response;
-    } catch (error: any) {
-      const duration = Date.now() - startTime;
+    } catch (error: unknown) {
+      const attemptDuration = Date.now() - startTime;
+      const totalDuration = Date.now() - overallStartTime;
+      const axiosError = axios.isAxiosError(error) ? error : null;
       const retryable = isRetryableError(error);
       const shouldRetry = retryable && attempt < maxAttempts;
 
-      const errorDetails: Record<string, any> = {
+      const errorDetails: Record<string, unknown> = {
         attempt,
         maxAttempts,
-        duration: `${duration}ms`,
-        code: error?.code || "UNKNOWN",
-        message: error?.message || "Unknown error",
-        status: error?.response?.status || "N/A",
-        statusText: error?.response?.statusText || "N/A",
+        attemptDuration: `${attemptDuration}ms`,
+        totalDuration: `${totalDuration}ms`,
+        code: axiosError?.code || "UNKNOWN",
+        message:
+          axiosError?.message ||
+          (error instanceof Error ? error.message : "Unknown error"),
+        status: axiosError?.response?.status || "N/A",
+        statusText: axiosError?.response?.statusText || "N/A",
         retryable,
         shouldRetry,
       };
 
-      if (error?.response) {
-        errorDetails.responseHeaders = error.response.headers;
-        errorDetails.responseDataSize = `${getHtmlLength(error.response.data)} bytes`;
+      if (axiosError?.response) {
+        errorDetails.responseHeaders = axiosError.response.headers;
+        errorDetails.responseDataSize = `${getHtmlLength(
+          axiosError.response.data
+        )} bytes`;
       }
 
-      if (error?.code === "ECONNABORTED") {
+      if (axiosError?.code === "ECONNABORTED") {
+        errorDetails.reason = `Timeout after ${config.scrapeTimeoutMs}ms`;
+      } else if (axiosError?.code === "ECONNRESET") {
+        errorDetails.reason = "Connection reset by server";
+      } else if (axiosError?.code === "ETIMEDOUT") {
+        errorDetails.reason = "Socket timeout (network issue)";
+      } else if (axiosError?.code === "ENOTFOUND") {
         errorDetails.reason =
-          "ג±ן¸ TIMEOUT: Request took longer than " + config.scrapeTimeoutMs + "ms";
-      } else if (error?.code === "ECONNRESET") {
-        errorDetails.reason = "נ” Connection reset by server";
-      } else if (error?.code === "ETIMEDOUT") {
-        errorDetails.reason = "ג±ן¸ Socket timeout (network issue)";
-      } else if (error?.code === "ENOTFOUND") {
-        errorDetails.reason =
-          "נ DNS resolution failed (cannot reach housingapp.lacity.org)";
-      } else if (error?.code === "EAI_AGAIN") {
-        errorDetails.reason = "נ Temporary DNS failure";
+          "DNS resolution failed (cannot reach housingapp.lacity.org)";
+      } else if (axiosError?.code === "EAI_AGAIN") {
+        errorDetails.reason = "Temporary DNS resolution failure";
       }
 
-      logger.warn(`ג FAILED on attempt ${attempt}/${maxAttempts}`, {
+      logger.warn("Scrape attempt failed", {
         url: sanitizedUrl,
         ...errorDetails,
       });
 
       if (!shouldRetry) {
-        logger.error(`נ’€ ALL ${maxAttempts} ATTEMPTS EXHAUSTED`, {
+        logger.error("Scrape retries exhausted", {
           url: sanitizedUrl,
-          totalDuration: `${duration}ms`,
-          lastError: error?.message,
+          totalDuration: `${totalDuration}ms`,
+          lastError: errorDetails.message,
           reason: errorDetails.reason,
         });
         throw error;
@@ -139,12 +152,12 @@ export async function getWithRetry(url: string) {
       const delayMs =
         config.scrapeRetryBaseDelayMs * Math.pow(2, attempt - 1);
 
-      logger.info(
-        `ג³ WAITING ${delayMs}ms before next attempt (${attempt + 1}/${maxAttempts})`,
-        {
-          url: sanitizedUrl,
-        }
-      );
+      logger.info("Scrape retry scheduled", {
+        url: sanitizedUrl,
+        delayMs,
+        nextAttempt: attempt + 1,
+        maxAttempts,
+      });
 
       await sleep(delayMs);
     }

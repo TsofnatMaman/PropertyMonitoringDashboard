@@ -1,0 +1,1 @@
+export const DEFAULT_CASES_PAGE_SIZE = 40;

@@ -5,10 +5,14 @@ import type {
   StartSyncPropertyResponse,
   SyncAllProgress,
 } from "../types/monitoring";
+import { DEFAULT_CASES_PAGE_SIZE } from "../constants/pagination";
 
 export async function getCasesOverview(
   filters: CaseFilters = {},
-  pagination: CasePaginationParams = { limit: 20, offset: 0 }
+  pagination: CasePaginationParams = {
+    limit: DEFAULT_CASES_PAGE_SIZE,
+    offset: 0,
+  }
 ): Promise<CasesOverviewResponse> {
   const params = new URLSearchParams();
 

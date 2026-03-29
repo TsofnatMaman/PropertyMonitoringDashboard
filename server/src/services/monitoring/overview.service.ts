@@ -2,11 +2,13 @@ import { listCasesFromDb } from "../cases/cases.service";
 import {
   buildCaseFlags,
   type CaseFilters,
+  type CaseFlags,
   filterCases,
   summarizeCases,
   type PaginationData,
 } from "../cases/case-labels.service";
 import { toTimestamp } from "../../utils/date";
+import type { CaseWithProperty } from "../../types/case.types";
 
 type CasesOverviewInput = CaseFilters & {
   limit?: number;
@@ -15,11 +17,13 @@ type CasesOverviewInput = CaseFilters & {
 
 type CasesOverviewResult = {
   summary: ReturnType<typeof summarizeCases>;
-  cases: Array<any>;
+  cases: CaseOverview[];
   pagination: PaginationData;
 };
 
-function scoreCase(flags: ReturnType<typeof buildCaseFlags>) {
+type CaseOverview = CaseWithProperty & { flags: CaseFlags };
+
+function scoreCase(flags: CaseFlags) {
   let score = 0;
   if (flags.isUrgent) score += 8;
   if (flags.needsAttention) score += 4;
@@ -30,7 +34,7 @@ function scoreCase(flags: ReturnType<typeof buildCaseFlags>) {
 
 function sortCases<
   T extends {
-    flags: ReturnType<typeof buildCaseFlags>;
+    flags: CaseFlags;
     latest_activity_date?: string | null;
   }
 >(cases: T[]) {
@@ -64,7 +68,7 @@ export function listCasesOverview(
 
   const cases = listCasesFromDb();
 
-  const enriched = cases.map((c) => {
+  const enriched: CaseOverview[] = cases.map((c) => {
     const flags = buildCaseFlags({
       latest_status: c.latest_status,
       case_type: c.case_type,

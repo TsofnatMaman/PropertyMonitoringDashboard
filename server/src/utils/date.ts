@@ -97,9 +97,3 @@ export function toTimestamp(value?: string | null): number {
   return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
 }
 
-export function isIsoDateString(value?: string | null): boolean {
-  const raw = String(value || "").trim();
-  if (!raw) return false;
-
-  return /^\d{4}-\d{2}-\d{2}T/.test(raw);
-}

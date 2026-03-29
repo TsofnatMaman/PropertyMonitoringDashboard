@@ -141,15 +141,3 @@ export function getLatestSyncRun(): PersistedSyncRun | null {
 
   return row ?? null;
 }
-
-export function getLatestCompletedSyncRun(): PersistedSyncRun | null {
-  const row = db.prepare(`
-    SELECT *
-    FROM sync_runs
-    WHERE status = 'completed'
-    ORDER BY id DESC
-    LIMIT 1
-  `).get() as PersistedSyncRun | undefined;
-
-  return row ?? null;
-}

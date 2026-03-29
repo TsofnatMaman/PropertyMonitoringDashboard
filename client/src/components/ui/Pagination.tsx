@@ -34,37 +34,28 @@ export default function PaginationControls({
   );
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        textAlign: "center",
-        display: "flex",
-        justifyContent: "center",
-        gap: "8px",
-        flexWrap: "wrap",
-        alignItems: "center",
-      }}
-    >
+    <div className="pagination">
       <Button
         onClick={onPrev}
         disabled={!hasPrevPage}
-        style={{ padding: "8px 12px" }}
+        className="pagination__button"
       >
-        ← Previous
+        Previous
       </Button>
 
       {adjustedStart > 1 && (
         <>
           <Button
             onClick={() => onGoToPage(1)}
-            style={{
-              padding: "8px 12px",
-              backgroundColor: currentPage === 1 ? "#4CAF50" : undefined,
-            }}
+            className={`pagination__button ${
+              currentPage === 1 ? "pagination__button--active" : ""
+            }`}
           >
             1
           </Button>
-          {adjustedStart > 2 && <span style={{ color: "#999" }}>...</span>}
+          {adjustedStart > 2 && (
+            <span className="pagination__ellipsis">...</span>
+          )}
         </>
       )}
 
@@ -72,11 +63,9 @@ export default function PaginationControls({
         <Button
           key={page}
           onClick={() => onGoToPage(page)}
-          style={{
-            padding: "8px 12px",
-            backgroundColor: currentPage === page ? "#4CAF50" : undefined,
-            fontWeight: currentPage === page ? "bold" : "normal",
-          }}
+          className={`pagination__button ${
+            currentPage === page ? "pagination__button--active" : ""
+          }`}
         >
           {page}
         </Button>
@@ -84,13 +73,14 @@ export default function PaginationControls({
 
       {endPage < totalPages && (
         <>
-          {endPage < totalPages - 1 && <span style={{ color: "#999" }}>...</span>}
+          {endPage < totalPages - 1 && (
+            <span className="pagination__ellipsis">...</span>
+          )}
           <Button
             onClick={() => onGoToPage(totalPages)}
-            style={{
-              padding: "8px 12px",
-              backgroundColor: currentPage === totalPages ? "#4CAF50" : undefined,
-            }}
+            className={`pagination__button ${
+              currentPage === totalPages ? "pagination__button--active" : ""
+            }`}
           >
             {totalPages}
           </Button>
@@ -100,12 +90,12 @@ export default function PaginationControls({
       <Button
         onClick={onNext}
         disabled={!hasNextPage}
-        style={{ padding: "8px 12px" }}
+        className="pagination__button"
       >
-        Next →
+        Next
       </Button>
 
-      <span style={{ marginLeft: "auto", color: "#666" }}>
+      <span className="pagination__meta">
         Page {currentPage} of {totalPages}
       </span>
     </div>

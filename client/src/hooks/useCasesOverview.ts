@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCasesOverview } from "../services/monitoring.api";
 import type { CaseFilters, CasesSummary, CasePaginationInfo, Case } from "../types/case";
+import { DEFAULT_CASES_PAGE_SIZE } from "../constants/pagination";
 
 const emptySummary: CasesSummary = {
   total: 0,
@@ -10,7 +11,7 @@ const emptySummary: CasesSummary = {
 };
 
 const emptyPagination: CasePaginationInfo = {
-  limit: 20,
+  limit: DEFAULT_CASES_PAGE_SIZE,
   offset: 0,
   total: 0,
   page: 1,
@@ -18,8 +19,6 @@ const emptyPagination: CasePaginationInfo = {
   hasNextPage: false,
   hasPrevPage: false,
 };
-
-const DEFAULT_PAGE_SIZE = 20;
 
 export function useCasesOverview(filters: CaseFilters) {
   const [cases, setCases] = useState<Case[]>([]);
@@ -35,9 +34,9 @@ export function useCasesOverview(filters: CaseFilters) {
         setLoading(true);
         setError("");
 
-        const offset = (page - 1) * DEFAULT_PAGE_SIZE;
+        const offset = (page - 1) * DEFAULT_CASES_PAGE_SIZE;
         const data = await getCasesOverview(filters, {
-          limit: DEFAULT_PAGE_SIZE,
+          limit: DEFAULT_CASES_PAGE_SIZE,
           offset: offset,
         });
         
