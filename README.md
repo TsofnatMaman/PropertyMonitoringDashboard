@@ -67,6 +67,8 @@ Responsibilities:
 
 ## 🗂 Data Model
 
+This section lists the fields stored and **why they matter** for the dashboard use case.
+
 ### `properties`
 
 | Field         | Description                                      |
@@ -92,24 +94,20 @@ Responsibilities:
 ### `sync_runs`
 for debugging
 
+**Why these fields:**
+- `properties.apn` is the external identifier used by LAHD and is required for scraping.
+- `properties.description` helps humans recognize the property quickly in the UI.
+- `properties.created_at` is only for traceability/debugging.
+- `cases.case_number` + `case_type_id` uniquely identify a case for syncing activities.
+- `cases.case_type` and `latest_status` power the flags and quick “at‑a‑glance” status.
+- `cases.latest_activity_date` enables “what’s new” and sorting by recency.
+- `sync_runs` exists only to track background sync progress and debugging data.
+
 These fields allow the system to determine:
 
 * Case state
 * Recency of activity
 * Priority level for display
-
----
-
-## 🔑 Case Identity
-
-Cases are uniquely identified by:
-
-```
-property_id + case_number + case_type_id
-```
-
-If `case_type_id` is missing, a normalized `case_type` is used as a fallback key for storage stability,
-but activity sync is skipped because the LAHD activity URL requires a real `case_type_id`.
 
 ---
 
@@ -144,7 +142,28 @@ These flags allow the dashboard to prioritize cases effectively.
 
 ---
 
-## Case Priority Scoring
+### ⚠️ Important Note on Flag Logic
+
+**The classification and flag logic is example code only.**
+
+The flags (Open, Needs Attention, Urgent, New Activity) are computed using simplified heuristics based on case status keywords. This logic is:
+
+* **Intentionally simple** for demonstration purposes
+* **Easy to customize** on the server side
+* **Not production-tested** against real LAHD data patterns
+
+**To adapt for your use case:**
+
+1. Review the flag logic in [`server/src/services/cases/case-labels.service.ts`](server/src/services/cases/case-labels.service.ts)
+2. Adjust the status markers in [`server/src/services/cases/case-classifiers.ts`](server/src/services/cases/case-classifiers.ts)
+3. Add real case data and test the output
+4. Refine keywords and classification rules as needed
+
+This design allows quick iteration without changing the rest of the system.
+
+---
+
+## ▲ Case Priority Scoring
 
 In addition to the flags, the server sorts cases by a simple priority score so the most important items appear first.
 
@@ -165,27 +184,6 @@ Cases are ordered by:
 This is intentionally simple and easy to adjust in
 `server/src/services/monitoring/overview.service.ts` and the flag rules in
 `server/src/services/cases/case-classifiers.ts`.
-
----
-
-## ⚠️ Important Note on Flag Logic
-
-**The classification and flag logic is example code only.**
-
-The flags (Open, Needs Attention, Urgent, New Activity) are computed using simplified heuristics based on case status keywords. This logic is:
-
-* **Intentionally simple** for demonstration purposes
-* **Easy to customize** on the server side
-* **Not production-tested** against real LAHD data patterns
-
-**To adapt for your use case:**
-
-1. Review the flag logic in [`server/src/services/cases/case-labels.service.ts`](server/src/services/cases/case-labels.service.ts)
-2. Adjust the status markers in [`server/src/services/cases/case-classifiers.ts`](server/src/services/cases/case-classifiers.ts)
-3. Add real case data and test the output
-4. Refine keywords and classification rules as needed
-
-This design allows quick iteration without changing the rest of the system.
 
 ---
 
