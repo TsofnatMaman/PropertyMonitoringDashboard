@@ -82,17 +82,20 @@ This section lists the fields stored and **why they matter** for the dashboard u
 
 ### `cases`
 
-| Field                       | Description                       |
-| --------------------------- | --------------------------------- |
-| `id`                        | Primary key                       |
-| `property_id`               | Reference to the related property |
-| `case_number`               | Case identifier                   |
-| `case_type`, `case_type_id` | Case classification               |
-| `latest_status`             | Most recent known status          |
-| `latest_activity_date`      | Timestamp of last activity        |
+| Field                  | Description                                                  |
+| ---------------------- | ------------------------------------------------------------ |
+| `id`                   | Primary key                                                  |
+| `property_id`          | Reference to the related property                            |
+| `case_number`          | Case identifier                                              |
+| `case_type`            | Case classification label from LAHD                          |
+| `case_type_id`         | Case classification identifier from LAHD                     |
+| `latest_status`        | Most recent known status                                     |
+| `latest_activity_date` | Timestamp of last activity                                   |
+| `has_new_activity`     | Stored marker used by monitoring logic to flag recent change |
 
 ### `sync_runs`
-for debugging
+
+Mainly used for sync monitoring and debugging.
 
 **Why these fields:**
 - `properties.apn` is the external identifier used by LAHD and is required for scraping.
@@ -101,7 +104,8 @@ for debugging
 - `cases.case_number` + `case_type_id` uniquely identify a case for syncing activities.
 - `cases.case_type` and `latest_status` power the flags and quick “at‑a‑glance” status.
 - `cases.latest_activity_date` enables “what’s new” and sorting by recency.
-- `sync_runs` exists only to track background sync progress and debugging data.
+- `cases.has_new_activity` preserves a recent-activity signal between sync cycles.
+- `sync_runs` fields track execution state, progress, errors, and per-run outcomes for observability.
 
 These fields allow the system to determine:
 
