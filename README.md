@@ -287,6 +287,12 @@ npm run dev
 # Runs on http://localhost:5173
 ```
 
+**Run Server Tests:**
+```bash
+cd server
+npm test
+```
+
 ### Environment Variables
 
 The system uses sensible defaults, but you can customize via `.env` or `docker-compose.yml`:
