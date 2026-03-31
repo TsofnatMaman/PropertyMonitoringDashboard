@@ -1,4 +1,4 @@
-# 🏢 Property Monitoring Dashboard
+﻿# 🏢 Property Monitoring Dashboard
 
 A system for monitoring property inspection activity from LAHD, designed to help property managers quickly identify new, important, and urgent cases across company-owned properties.
 
@@ -71,41 +71,32 @@ This section lists the fields stored and **why they matter** for the dashboard u
 
 ### `properties`
 
-| Field         | Description                                      |
-| ------------- | ------------------------------------------------ |
-| `id`          | Internal primary key                             |
-| `apn`         | Unique property identifier (used for tracking)   |
-| `description` | User-defined label (address, name, etc.)         |
-| `created_at`  | Record creation timestamp (mainly for debugging) |
+| Field         | Description                                                        |
+| ------------- | ------------------------------------------------------------------ |
+| `id`          | Internal primary key used for reliable joins and relational integrity. |
+| `apn`         | Unique external property identifier used for LAHD scraping and tracking. |
+| `description` | User-defined label (address/name) to help users quickly identify the property in UI. |
+| `created_at`  | Creation timestamp kept mainly for traceability and debugging.      |
 
 ---
 
 ### `cases`
 
-| Field                  | Description                                                  |
-| ---------------------- | ------------------------------------------------------------ |
-| `id`                   | Primary key                                                  |
-| `property_id`          | Reference to the related property                            |
-| `case_number`          | Case identifier                                              |
-| `case_type`            | Case classification label from LAHD                          |
-| `case_type_id`         | Case classification identifier from LAHD                     |
-| `latest_status`        | Most recent known status                                     |
-| `latest_activity_date` | Timestamp of last activity                                   |
-| `has_new_activity`     | Stored marker used by monitoring logic to flag recent change |
+| Field                  | Description                                                                 |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `id`                   | Primary key used for reliable joins and relational integrity.              |
+| `property_id`          | Reference to the related property, linking every case to its property.     |
+| `case_number`          | Case identifier used to match incoming case updates from the source.       |
+| `case_type`            | LAHD case type label used for quick classification and flag logic.         |
+| `case_type_id`         | LAHD case type ID that disambiguates identity together with `case_number`. |
+| `latest_status`        | Most recent known status used for current state display and priority flags. |
+| `latest_activity_date` | Last activity timestamp used for recency sorting and "what's new".         |
+| `has_new_activity`     | Stored marker that preserves recent-activity signal between sync cycles.   |
 
 ### `sync_runs`
 
 Mainly used for sync monitoring and debugging.
 
-**Why these fields:**
-- `properties.apn` is the external identifier used by LAHD and is required for scraping.
-- `properties.description` helps humans recognize the property quickly in the UI.
-- `properties.created_at` is only for traceability/debugging.
-- `cases.case_number` + `case_type_id` uniquely identify a case for syncing activities.
-- `cases.case_type` and `latest_status` power the flags and quick “at‑a‑glance” status.
-- `cases.latest_activity_date` enables “what’s new” and sorting by recency.
-- `cases.has_new_activity` preserves a recent-activity signal between sync cycles.
-- `sync_runs` fields track execution state, progress, errors, and per-run outcomes for observability.
 
 These fields allow the system to determine:
 
@@ -321,3 +312,4 @@ If given more time, I would extend the system with:
 * User-controlled flag overrides
 * Multi-user support
 * Subscriptions / notifications (alerts on urgent cases)
+
