@@ -144,7 +144,6 @@ Flags are computed on the server to ensure consistent behavior across the UI:
 
 These flags allow the dashboard to prioritize cases effectively.
 
----
 
 ### ⚠️ Important Note on Flag Logic
 
@@ -316,13 +315,8 @@ The system uses sensible defaults, but you can customize via `.env` or `docker-c
 If given more time, I would extend the system with:
 
 * Automated tests (unit + integration)
-* Smarter sync policies
-
-  * e.g. closed cases updated less frequently
-* Database optimizations
-
-  * batching
-  * indexing
+* Smarter sync policies (e.g. closed cases updated less frequently)
+* Database optimizations (batching, indexing)
 * Data retention / cleanup strategy
 * User-controlled flag overrides
 * Multi-user support
